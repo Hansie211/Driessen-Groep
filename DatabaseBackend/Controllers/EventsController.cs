@@ -14,21 +14,21 @@ namespace DatabaseBackend.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly EventContext _context;
+        private readonly ApiContext _context;
 
-        public EventsController(EventContext context)
+        public EventsController(ApiContext context)
         {
             _context = context;
         }
 
-        // GET: api/Events
-        [HttpGet]
+        // GET: api/events
+        [HttpGet("")]
         public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
         {
             return await _context.Events.ToListAsync();
         }
 
-        // GET: api/Events/5
+        // GET: api/events/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
@@ -42,51 +42,25 @@ namespace DatabaseBackend.Controllers
             return @event;
         }
 
-        // PUT: api/Events/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEvent(int id, Event @event)
+        // PUT: api/events/myevent
+        [HttpPut("{name}")]
+        // PUT: api/events
+        [HttpPost("")]
+        public async Task<IActionResult> CreateEvent( string name )
         {
-            if (id != @event.ID)
-            {
-                return BadRequest();
-            }
 
-            _context.Entry(@event).State = EntityState.Modified;
+            Event @event = new Event() {
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EventExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                Name = name,
+            };
 
-            return NoContent();
-        }
-
-        // POST: api/Events
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        [HttpPost]
-        public async Task<ActionResult<Event>> PostEvent(Event @event)
-        {
-            _context.Events.Add(@event);
+            _context.Events.Add( @event );
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEvent", new { id = @event.ID }, @event);
+            return CreatedAtAction( "GetEvent", new { id = @event.ID }, @event );
         }
 
-        // DELETE: api/Events/5
+        // DELETE: api/events/5
         [HttpDelete("{id}")]
         public async Task<ActionResult<Event>> DeleteEvent(int id)
         {
@@ -100,11 +74,6 @@ namespace DatabaseBackend.Controllers
             await _context.SaveChangesAsync();
 
             return @event;
-        }
-
-        private bool EventExists(int id)
-        {
-            return _context.Events.Any(e => e.ID == id);
         }
     }
 }
