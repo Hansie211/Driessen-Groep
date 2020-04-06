@@ -14,64 +14,72 @@ namespace DatabaseBackend.Controllers
     [ApiController]
     public class EventsController : ControllerBase
     {
-        private readonly ApiContext _context;
+        private readonly ApiContext Db;
 
         public EventsController(ApiContext context)
         {
-            _context = context;
+            Db = context;
         }
 
         // GET: api/events
         [HttpGet("")]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+        public async Task<IEnumerable<Event>> GetEvents()
         {
-            return await _context.Events.ToListAsync();
+            return await Db.Events.ToListAsync();
         }
 
         // GET: api/events/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> GetEvent(int id)
+        public async Task<Event> GetEvent(int id)
         {
-            var @event = await _context.Events.FindAsync(id);
+            var @event = await Db.Events.FindAsync(id);
 
             if (@event == null)
             {
-                return NotFound();
+                return null;
             }
 
             return @event;
         }
 
-        // PUT: api/events/myevent
-        [HttpPut("{name}")]
-        // PUT: api/events
-        [HttpPost("")]
-        public async Task<IActionResult> CreateEvent( string name )
+        // PUT: api/events/create/
+        [HttpPut("create/{name}")]
+        public async Task<Event> CreateEvent( string name, string description )
         {
+
+            description = "kort";
 
             Event @event = new Event() {
 
                 Name = name,
+                Description = description,
             };
 
-            _context.Events.Add( @event );
-            await _context.SaveChangesAsync();
+            return await CreateEvent( @event );
+        }
 
-            return CreatedAtAction( "GetEvent", new { id = @event.ID }, @event );
+        // PUT: api/events/create
+        [HttpPost( "create/" )]
+        public async Task<Event> CreateEvent( Event @event ) {
+
+            Db.Events.Add( @event );
+            await Db.SaveChangesAsync();
+
+            return @event;
         }
 
         // DELETE: api/events/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Event>> DeleteEvent(int id)
+        public async Task<Event> DeleteEvent(int id)
         {
-            var @event = await _context.Events.FindAsync(id);
+            var @event = await Db.Events.FindAsync(id);
             if (@event == null)
             {
-                return NotFound();
+                return null;
             }
 
-            _context.Events.Remove(@event);
-            await _context.SaveChangesAsync();
+            Db.Events.Remove(@event);
+            await Db.SaveChangesAsync();
 
             return @event;
         }

@@ -12,56 +12,78 @@ namespace DatabaseBackend.Controllers {
     [Route( "api/[controller]" )]
     [ApiController]
     public class UsersController : ControllerBase {
-        private readonly ApiContext _context;
+
+        private readonly ApiContext Db;
 
         public UsersController( ApiContext context ) {
-            _context = context;
+            Db = context;
         }
 
         // GET: api/users
         [HttpGet( "" )]
-        public async Task<ActionResult<IEnumerable<User>>> GetUser() {
-            return await _context.Users.ToListAsync();
+        public async Task<IEnumerable<User>> GetUser() {
+            return await Db.Users.ToListAsync();
         }
 
         // GET: api/users/5
         [HttpGet( "{id}" )]
-        public async Task<ActionResult<User>> GetUser( int id ) {
-            var user = await _context.Users.FindAsync(id);
+        public async Task<User> GetUser( int id ) {
+            var user = await Db.Users.FindAsync(id);
 
             if ( user == null ) {
-                return NotFound();
+
+                return null;
             }
 
             return user;
         }
 
-        // PUT: api/users/
-        [HttpPut( "{firstname}/{lastname}" )]
-        // POST: api/users/
-        [HttpPost( "" )]
-        public async Task<IActionResult> CreateUser( string firstName, string lastName ) {
+        // PUT: api/users/create/
+        [HttpPut( "create/{firstname}/{lastname}" )]
+        public async Task<User> CreateUser( string firstName, string lastName ) {
 
             User user = new User();
             user.FirstName  = firstName;
             user.LastName   = lastName;
 
-            _context.Users.Add( user );
-            await _context.SaveChangesAsync();
+            return await CreateUser( user );
+        }
 
-            return CreatedAtAction( "GetUser", new { id = user.ID }, user );
+        // POST: api/users/
+        [HttpPost( "create/" )]
+        public async Task<User> CreateUser( User user ) {
+
+            Db.Users.Add( user );
+            await Db.SaveChangesAsync();
+
+            return user;
+        }
+
+        [HttpPost("update/")]
+        public async Task<User> UpdateUser( User user ) {
+
+            User dbuser = await Db.Users.FindAsync( user.ID );
+            if ( dbuser == null ) {
+                return null;
+            }
+
+            Db.Users.Update( user );
+            await Db.SaveChangesAsync();
+
+            return user;
         }
 
         // DELETE: api/users/5
         [HttpDelete( "{id}" )]
-        public async Task<ActionResult<User>> DeleteUser( int id ) {
-            var user = await _context.Users.FindAsync(id);
+        public async Task<User> DeleteUser( int id ) {
+
+            var user = await Db.Users.FindAsync(id);
             if ( user == null ) {
-                return NotFound();
+                return null;
             }
 
-            _context.Users.Remove( user );
-            await _context.SaveChangesAsync();
+            Db.Users.Remove( user );
+            await Db.SaveChangesAsync();
 
             return user;
         }
