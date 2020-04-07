@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DatabaseBackend;
 using SharedLibrary.Models;
+using SharedLibrary;
 
 // https://restfulapi.net/rest-put-vs-post/
 
@@ -29,7 +30,18 @@ namespace DatabaseBackend.Controllers {
 
         // POST: api/users/
         [HttpPost( "" )]
-        public async Task<User> CreateUser( User user ) {
+        public async Task<User> CreateUser( string firstName, string lastName, string emailAddress, string password ) {
+
+            emailAddress = emailAddress.ToLower();
+
+            User user = new User(){
+                FirstName       = firstName,
+                LastName        = lastName,
+                Email           = emailAddress,
+                SecurityLevel   = SecurityLevel.User,
+            };
+
+            PasswordSecurity.SetPassword( password, user );
 
             Db.Users.Add( user );
             await Db.SaveChangesAsync();
@@ -79,6 +91,23 @@ namespace DatabaseBackend.Controllers {
             await Db.SaveChangesAsync();
 
             return user;
+        }
+
+        // POST: api/users/login
+        [HttpPost( "login") ]
+        public async Task<string> LoginUser( string emailAddress, string password ) {
+
+            emailAddress = emailAddress.ToLower();
+
+            var user = await Db.Users.Where( x => x.Email == emailAddress ).FirstOrDefaultAsync();
+            if ( user == null ) {
+
+                return null;
+            }
+
+
+
+            return null;
         }
     }
 }
