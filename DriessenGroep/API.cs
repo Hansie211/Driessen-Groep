@@ -31,8 +31,10 @@ namespace DriessenGroep {
 
         private static readonly HttpClient client = new HttpClient( new FakeSSLHandler() );
 
-        private static readonly int HostPort     = 44388;
-        public static readonly string HostURL   = $"https://IPADDRESS:{ HostPort }";
+        private static readonly int HostPort        = 5000;
+        private static readonly string HostProtocol = "http";
+        private static readonly string HostAddress  = "192.168.178.10";
+        public static readonly string HostURL       = $"{ HostProtocol }://{ HostAddress }:{ HostPort }";
 
         public class APIResponse<T> {
 
@@ -104,7 +106,7 @@ namespace DriessenGroep {
 
             try {
                 
-                HttpResponseMessage response = await client.PostAsync( "api/users/create/", JSONContent( user ) );
+                HttpResponseMessage response = await client.PostAsync( "api/users", JSONContent( user ) );
                 return await APIResponse<User>.Generate( response );
 
             } catch ( Exception exp ) {
