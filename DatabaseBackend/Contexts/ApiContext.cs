@@ -25,10 +25,12 @@ namespace DatabaseBackend {
                 new Event() { ID = 10, Name = "EventName", Date = DateTime.Now }
             );
 
+            modelBuilder.Entity<User>().HasAlternateKey( u => new { u.Email } );
             modelBuilder.Entity<User>().HasData(
 
-                new User() { ID = 11, FirstName = "First", LastName = "LastName" }
+                new User() { ID = 11, FirstName = "First", LastName = "LastName", Email = "EMAIL" }
             );
+
         }
     }
 }

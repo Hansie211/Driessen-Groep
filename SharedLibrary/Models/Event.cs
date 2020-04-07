@@ -19,7 +19,7 @@ namespace SharedLibrary.Models {
 
         public List<User> Owners { get; set; }
 
-        public List<Person> Speakers { get; set; }
+        public List<Speaker> Speakers { get; set; }
 
         public List<EventReview> Reviews { get; set; }
     }

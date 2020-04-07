@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SharedLibrary.Models {
-    public class Person {
+    public abstract class Person {
         public int ID { get; set; }
 
         public string FirstName { get; set; }
