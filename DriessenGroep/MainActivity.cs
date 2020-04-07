@@ -51,6 +51,7 @@ namespace DriessenGroep
             Snackbar.Make(view, "Replace with your own action", Snackbar.LengthLong)
                 .SetAction("Action", (View.IOnClickListener)null).Show();
         }
+
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
             Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
