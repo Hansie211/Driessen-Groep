@@ -26,8 +26,6 @@ namespace DriessenGroep
 
             FloatingActionButton fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
             fab.Click += FabOnClick;
-
-            API.CreateUserAsync("AFirst", "ASecond");
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
