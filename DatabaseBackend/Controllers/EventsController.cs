@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using DatabaseBackend;
 using SharedLibrary.Models;
 
+// https://restfulapi.net/rest-put-vs-post/
+
 namespace DatabaseBackend.Controllers
 {
     [Route("api/[controller]")]
@@ -28,6 +30,16 @@ namespace DatabaseBackend.Controllers
             return await Db.Events.ToListAsync();
         }
 
+        // Post: api/events
+        [HttpPost( "" )]
+        public async Task<Event> CreateEvent( Event @event ) {
+
+            Db.Events.Add( @event );
+            await Db.SaveChangesAsync();
+
+            return @event;
+        }
+
         // GET: api/events/5
         [HttpGet("{id}")]
         public async Task<Event> GetEvent(int id)
@@ -42,27 +54,17 @@ namespace DatabaseBackend.Controllers
             return @event;
         }
 
-        // PUT: api/events/create/
-        [HttpPut("create/{name}")]
-        public async Task<Event> CreateEvent( string name, string description )
-        {
+        // PUT: api/events/5
+        [HttpPut("{id}")]
+        public async Task<Event> UpdateEvent( int id, Event @event ) { 
 
-            description = "kort";
+            Event dbevent = await Db.Events.FindAsync( id );
+            if ( dbevent == null ) {
+                return null;
+            }
 
-            Event @event = new Event() {
-
-                Name = name,
-                Description = description,
-            };
-
-            return await CreateEvent( @event );
-        }
-
-        // PUT: api/events/create
-        [HttpPost( "create/" )]
-        public async Task<Event> CreateEvent( Event @event ) {
-
-            Db.Events.Add( @event );
+            dbevent.ID = id;
+            Db.Events.Update( @event );
             await Db.SaveChangesAsync();
 
             return @event;

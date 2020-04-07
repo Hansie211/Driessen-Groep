@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using DatabaseBackend;
 using SharedLibrary.Models;
 
+// https://restfulapi.net/rest-put-vs-post/
+
 namespace DatabaseBackend.Controllers {
     [Route( "api/[controller]" )]
     [ApiController]
@@ -25,6 +27,16 @@ namespace DatabaseBackend.Controllers {
             return await Db.Users.ToListAsync();
         }
 
+        // POST: api/users/
+        [HttpPost( "" )]
+        public async Task<User> CreateUser( User user ) {
+
+            Db.Users.Add( user );
+            await Db.SaveChangesAsync();
+
+            return user;
+        }
+
         // GET: api/users/5
         [HttpGet( "{id}" )]
         public async Task<User> GetUser( int id ) {
@@ -38,35 +50,16 @@ namespace DatabaseBackend.Controllers {
             return user;
         }
 
-        // PUT: api/users/create/
-        [HttpPut( "create/{firstname}/{lastname}" )]
-        public async Task<User> CreateUser( string firstName, string lastName ) {
-
-            User user = new User();
-            user.FirstName  = firstName;
-            user.LastName   = lastName;
-
-            return await CreateUser( user );
-        }
-
-        // POST: api/users/
-        [HttpPost( "create/" )]
-        public async Task<User> CreateUser( User user ) {
-
-            Db.Users.Add( user );
-            await Db.SaveChangesAsync();
-
-            return user;
-        }
-
-        [HttpPost("update/")]
-        public async Task<User> UpdateUser( User user ) {
-
-            User dbuser = await Db.Users.FindAsync( user.ID );
+        // PUT: api/users/5
+        [HttpPut("{id}")]
+        public async Task<User> UpdateUser( int id, User user ) {
+            
+            User dbuser = await Db.Users.FindAsync( id );
             if ( dbuser == null ) {
                 return null;
             }
 
+            user.ID = id;
             Db.Users.Update( user );
             await Db.SaveChangesAsync();
 
