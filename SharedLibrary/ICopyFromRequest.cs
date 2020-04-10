@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SharedLibrary {
-    public enum OwnershipLevel {
-        None,
-        Moderator,
-        Administrator,
+    public interface ICopyFromRequest {
+
+        void CopyFromRequest( object request );
     }
 }

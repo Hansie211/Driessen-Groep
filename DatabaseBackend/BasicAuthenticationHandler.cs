@@ -23,7 +23,7 @@ namespace DatabaseBackend {
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
 
-            string token = Request.Headers["AuthToken"];
+            string token = Request.Headers["Authorization"];
 
             if ( token == null ) {
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace SharedLibrary.Models {
-    public class Event {
+    public class Event : ICopyFromRequest {
 
         [Key]
         public int ID { get; set; }
@@ -40,6 +40,16 @@ namespace SharedLibrary.Models {
             Ownerships  = new List<EventOwnership>();
             Speakers    = new List<Speaker>();
             Reviews     = new List<EventReview>();
+        }
+
+        public void CopyFromRequest( object request ) {
+            
+            Event source = (Event)request;
+
+            Title       = source.Title;
+            Date        = source.Date;
+            Location    = source.Location;
+            Description = source.Description;
         }
     }
 }

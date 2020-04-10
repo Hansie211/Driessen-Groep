@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace SharedLibrary.Models {
         public int ID { get; set; }
 
         [Required]
+        [JsonIgnore]
         public Event Event { get; set; }
 
         [Required]

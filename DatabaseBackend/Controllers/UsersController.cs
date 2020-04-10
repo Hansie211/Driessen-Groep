@@ -66,9 +66,6 @@ namespace DatabaseBackend.Controllers {
                 return BadRequest( "User not found." );
             }
 
-            user.PasswordHash = null;
-            user.PasswordSalt = null;
-
             return user;
         }
 
@@ -86,12 +83,44 @@ namespace DatabaseBackend.Controllers {
 
                 return BadRequest( "User not found." );
             }
+            
+            dbuser.CopyFromRequest( user );
 
-            user.ID = id;
-            Db.Users.Update( user );
+            // Only admin or higher can upgrade, but a admin cannot go up to sysadmin
+            if ( ( AuthorizedSecurityLevel >= SecurityLevel.Administrator ) && ( user.SecurityLevel > dbuser.SecurityLevel ) && ( user.SecurityLevel <= AuthorizedSecurityLevel ) ) {
+
+                dbuser.SecurityLevel = user.SecurityLevel;                
+            }
+
+            Db.Users.Update( dbuser );
             await Db.SaveChangesAsync();
 
             return user;
+        }
+
+        // PUT: api/users/5/password
+        [HttpPut("{id}/password")]
+        public async Task<ActionResult> ChangeUserPassword( int id, [FromBody]string password ) {
+
+            if ( !IsAuthorizedToAccess( id ) ) {
+
+                return BadRequest( "Validation error." );
+            }
+
+            User user = await Db.Users.FindAsync( id );
+            if ( user == null ) {
+
+                return BadRequest( "User not found." );
+            }
+
+            PasswordSecurity.SetPassword( password, user );
+
+            Db.Users.Attach( user );
+            Db.Entry( user ).Property( o => o.PasswordHash ).IsModified = true;
+            Db.Entry( user ).Property( o => o.PasswordSalt ).IsModified = true;
+            await Db.SaveChangesAsync();
+
+            return Ok();
         }
 
         // DELETE: api/users/5
@@ -134,6 +163,10 @@ namespace DatabaseBackend.Controllers {
             }
 
             return AccessToken.Generate( user.Email );
+        }
+
+        private bool UserExists( int id ) {
+            return Db.Users.Any( e => e.ID == id );
         }
     }
 }

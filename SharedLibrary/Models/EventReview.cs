@@ -1,33 +1,45 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace SharedLibrary.Models {
-    public class EventReview {
+    public class EventReview : ICopyFromRequest {
 
         [Key]
         public int ID { get; set; }
 
-        [Required]
+        [JsonIgnore]
         public Event Event { get; set; }
 
         [Required]
         public User User { get; set; }
 
         [Required]
-        public Rating Overal { get; set; }
+        public float Overal { get; set; }
 
         [Required]
-        public Rating Speakers { get; set; }
+        public float Speakers { get; set; }
 
         [Required]
-        public Rating Location { get; set; }
+        public float Location { get; set; }
 
         [Required]
-        public Rating Facilities { get; set; }
+        public float Facilities { get; set; }
 
         [Required]
         public string Comment { get; set; }
+
+        public void CopyFromRequest( object request ) {
+            
+            EventReview source = (EventReview)request;
+
+            Overal = source.Overal;
+            Speakers = source.Speakers;
+            Location = source.Location;
+            Facilities = source.Facilities;
+            Comment = source.Comment;
+        }
     }
 }

@@ -16,12 +16,21 @@ namespace DatabaseBackend {
 
         public ApiContext( [NotNullAttribute] DbContextOptions options ) : base( options ) {
 
+            //this.Database.EnsureDeleted();
             this.Database.EnsureCreated();
         }
 
         public DbSet<Event> Events { get; set; }
 
         public DbSet<User> Users { get; set; }
+
+        public DbSet<EventOwnership> EventOwnerships { get; set; }
+
+        public DbSet<Speaker> Speakers { get; set; }
+
+        public DbSet<EventProgram> EventPrograms { get; set; }
+
+        public DbSet<EventReview> EventReviews { get; set; }
 
         protected override void OnModelCreating( ModelBuilder modelBuilder ) {
 
@@ -51,9 +60,8 @@ namespace DatabaseBackend {
             );
         }
 
-        public IEnumerable<User> GetEventOwners( Event @event, OwnershipLevel level = OwnershipLevel.Moderator ) {
+        private IEnumerable<User> GetEventOwners( IEnumerable<EventOwnership> ownerships ) {
 
-            IEnumerable<EventOwnership> ownerships = @event.Ownerships.Where( o => o.OwnershipLevel == level );
             foreach ( EventOwnership ownership in ownerships ) {
 
                 User user = Users.FirstOrDefault( u => u.ID == ownership.User.ID );
@@ -65,9 +73,19 @@ namespace DatabaseBackend {
             }
         }
 
-        public IEnumerable<Event> GetOwnedEvents( User user, OwnershipLevel level = OwnershipLevel.Moderator ) {
+        public IEnumerable<User> GetEventOwners( Event @event, OwnershipLevel level ) {
 
-            IEnumerable<EventOwnership> ownerships = user.Ownerships.Where( o => o.OwnershipLevel == level );
+            IEnumerable<EventOwnership> ownerships = @event.Ownerships.Where( o => o.OwnershipLevel == level );
+            return GetEventOwners( ownerships );
+        }
+
+        public IEnumerable<User> GetEventOwners( Event @event ) {
+            IEnumerable<EventOwnership> ownerships = @event.Ownerships;
+            return GetEventOwners( ownerships );
+        }
+
+        private IEnumerable<Event> GetOwnedEvents( IEnumerable<EventOwnership> ownerships ) {
+
             foreach ( EventOwnership ownership in ownerships ) {
 
                 Event @event = Events.FirstOrDefault( e => e.ID == ownership.Event.ID );
@@ -77,6 +95,18 @@ namespace DatabaseBackend {
 
                 yield return @event;
             }
+        }
+
+        public IEnumerable<Event> GetOwnedEvents( User user, OwnershipLevel level) {
+
+            IEnumerable<EventOwnership> ownerships = user.Ownerships.Where( o => o.OwnershipLevel == level );
+            return GetOwnedEvents( ownerships );
+        }
+
+        public IEnumerable<Event> GetOwnedEvents( User user) {
+
+            IEnumerable<EventOwnership> ownerships = user.Ownerships;
+            return GetOwnedEvents( ownerships );
         }
     }
 }
