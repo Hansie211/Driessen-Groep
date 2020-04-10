@@ -2,7 +2,6 @@
 {
     public enum SecurityLevel
     {
-        None,
         User,
         FrequentUser,
         Moderator,

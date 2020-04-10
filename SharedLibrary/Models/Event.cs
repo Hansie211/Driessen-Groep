@@ -1,26 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 
 namespace SharedLibrary.Models {
     public class Event {
 
+        [Key]
         public int ID { get; set; }
-        
-        public string Name { get; set; }
 
+        [Required]
+        public string Title { get; set; }
+
+        [Required]
         public DateTime Date { get; set; }
 
+        [Required]
         public string Location { get; set; }
 
+        [Required]
         public string Description { get; set; }
 
-        public List<EventProgram> Programs { get; set; }
+        [Required]
+        public IList<EventProgram> Programs { get; set; }
 
-        public List<User> Owners { get; set; }
+        [Required]
+        public IList<EventOwnership> Ownerships { get; set; }
 
-        public List<Speaker> Speakers { get; set; }
+        [Required]
+        public IList<Speaker> Speakers { get; set; }
 
-        public List<EventReview> Reviews { get; set; }
+        [Required]
+        public IList<EventReview> Reviews { get; set; }
+
+        public Event() {
+
+            Programs    = new List<EventProgram>();
+            Ownerships  = new List<EventOwnership>();
+            Speakers    = new List<Speaker>();
+            Reviews     = new List<EventReview>();
+        }
     }
 }

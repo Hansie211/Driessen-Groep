@@ -1,74 +1,90 @@
-﻿using System;
+﻿using DatabaseBackend.Security;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SharedLibrary;
+using SharedLibrary.Models;
+using SharedLibrary.Parameters;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DatabaseBackend;
-using SharedLibrary.Models;
-using SharedLibrary;
+using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Security.Claims;
 
 // https://restfulapi.net/rest-put-vs-post/
 
 namespace DatabaseBackend.Controllers {
+
     [Route( "api/[controller]" )]
     [ApiController]
-    public class UsersController : ControllerBase {
-
-        private readonly ApiContext Db;
-
-        public UsersController( ApiContext context ) {
-            Db = context;
+    [Authorize]
+    public class UsersController : BaseController {
+        public UsersController( ApiContext context ) : base( context ) {
         }
 
         // GET: api/users
         [HttpGet( "" )]
-        public async Task<IEnumerable<User>> GetUser() {
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers() {
+
             return await Db.Users.ToListAsync();
         }
 
         // POST: api/users/
         [HttpPost( "" )]
-        public async Task<User> CreateUser( string firstName, string lastName, string emailAddress, string password ) {
+        [AllowAnonymous]
+        public async Task<ActionResult<string>> CreateUser( CreateUserParameters parameters ) {
 
-            emailAddress = emailAddress.ToLower();
+            parameters.EmailAddress = parameters.EmailAddress.ToLower();
 
             User user = new User(){
-                FirstName       = firstName,
-                LastName        = lastName,
-                Email           = emailAddress,
+                FirstName       = parameters.FirstName,
+                LastName        = parameters.LastName,
+                Email           = parameters.EmailAddress,
                 SecurityLevel   = SecurityLevel.User,
             };
 
-            PasswordSecurity.SetPassword( password, user );
+            PasswordSecurity.SetPassword( parameters.Password, user );
 
             Db.Users.Add( user );
             await Db.SaveChangesAsync();
 
-            return user;
+            return AccessToken.Generate( user.Email );
         }
 
         // GET: api/users/5
         [HttpGet( "{id}" )]
-        public async Task<User> GetUser( int id ) {
-            var user = await Db.Users.FindAsync(id);
+        public async Task<ActionResult<User>> GetUser( int id ) {
 
+            if ( !IsAuthorizedToAccess( id ) ) {
+
+                return BadRequest( "Validation error." );
+            }
+
+            var user = await Db.Users.FindAsync(id);
             if ( user == null ) {
 
-                return null;
+                return BadRequest( "User not found." );
             }
+
+            user.PasswordHash = null;
+            user.PasswordSalt = null;
 
             return user;
         }
 
         // PUT: api/users/5
         [HttpPut("{id}")]
-        public async Task<User> UpdateUser( int id, User user ) {
-            
+        public async Task<ActionResult<User>> UpdateUser( int id, [FromBody]User user ) {
+
+            if ( !IsAuthorizedToAccess( id ) ) {
+
+                return BadRequest( "Validation error." );
+            }
+
             User dbuser = await Db.Users.FindAsync( id );
             if ( dbuser == null ) {
-                return null;
+
+                return BadRequest( "User not found." );
             }
 
             user.ID = id;
@@ -80,11 +96,17 @@ namespace DatabaseBackend.Controllers {
 
         // DELETE: api/users/5
         [HttpDelete( "{id}" )]
-        public async Task<User> DeleteUser( int id ) {
+        public async Task<ActionResult<User>> DeleteUser( int id ) {
+
+            if ( !IsAuthorizedToAccess(id) ) {
+
+                return BadRequest( "Validation error." );
+            }
 
             var user = await Db.Users.FindAsync(id);
             if ( user == null ) {
-                return null;
+
+                return BadRequest( "User not found." );
             }
 
             Db.Users.Remove( user );
@@ -95,19 +117,23 @@ namespace DatabaseBackend.Controllers {
 
         // POST: api/users/login
         [HttpPost( "login") ]
-        public async Task<string> LoginUser( string emailAddress, string password ) {
+        [AllowAnonymous]
+        public async Task<ActionResult<string>> LoginUser( LoginUserParameters parameters ) {
 
-            emailAddress = emailAddress.ToLower();
+            parameters.EmailAddress = parameters.EmailAddress.ToLower();
 
-            var user = await Db.Users.Where( x => x.Email == emailAddress ).FirstOrDefaultAsync();
+            var user = await Db.Users.FirstOrDefaultAsync( x => x.Email == parameters.EmailAddress );
             if ( user == null ) {
 
-                return null;
+                return BadRequest( "Invalid emailadress / password" );
             }
 
+            if ( !PasswordSecurity.ComparePassword( parameters.Password, user ) ) {
 
+                return BadRequest( "Invalid emailadress / password" );
+            }
 
-            return null;
+            return AccessToken.Generate( user.Email );
         }
     }
 }
