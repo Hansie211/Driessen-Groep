@@ -168,7 +168,7 @@ namespace DatabaseBackend.Controllers
             }
 
             // Is the requester authorized?
-            if ( GetOwnershipLevel( id, AuthorizedID ) < OwnershipLevel.Administrator ) {
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Administrator ) {
 
                 if ( userid != AuthorizedID ) {
 
