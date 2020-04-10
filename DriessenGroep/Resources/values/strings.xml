@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Driessen Evenementen</string>
     <string name="action_settings">Instellingen</string>
+
+    <string name="email">E-mail</string>
+    <string name="invalid_email">E-mail is ongeldig</string>
+    
+    <string name="password">Wachtwoord</string>
+    
+    <string name="confirm_button_text">Bevestigen</string>
 </resources>
