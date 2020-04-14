@@ -14,7 +14,21 @@ namespace DriessenGroep
             SetContentView(Resource.Layout.register_main);
 
             TextView loginText = FindViewById<TextView>(Resource.Id.loginText);
-            loginText.Click += (sender, e) => this.SwitchToActivity<MainActivity>(ActivityFlags.ReorderToFront);
+            loginText.Click += (sender, e) => (this).SwitchToActivity<MainActivity>(ActivityFlags.ReorderToFront);
+
+            EditText emailText = FindViewById<EditText>(Resource.Id.emailAddress);
+            emailText.FocusChange += EmailText_FocusChange;
+        }
+
+        private void EmailText_FocusChange(object sender, Android.Views.View.FocusChangeEventArgs e)
+        {
+            if (!e.HasFocus)
+            {
+                if (!Android.Util.Patterns.EmailAddress.Matcher((sender as EditText).Text).Matches())
+                {
+                    DisplayTextError(sender, string.Format(GetString(Resource.String.invalid_value), GetString(Resource.String.email)));
+                }
+            }
         }
     }
 }

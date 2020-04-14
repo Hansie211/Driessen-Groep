@@ -8,10 +8,14 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_main">
 
+    <include layout="@layout/toolbar"
+        android:id="@+id/toolbar"/>
+
     <EditText
         android:inputType="textEmailAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
         android:hint="@string/email"
         android:id="@+id/emailBox" />
     <EditText

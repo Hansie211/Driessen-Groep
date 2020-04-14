@@ -6,11 +6,13 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <include layout="@layout/toolbar"
+    <include
+        layout="@layout/toolbar"
         android:id="@+id/toolbar"/>
 
     <EditText
         android:inputType="textPersonName"
+        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolbar"
@@ -18,6 +20,7 @@
         android:id="@+id/firstName" />
     <EditText
         android:inputType="textPersonName"
+        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/affix"
@@ -25,6 +28,7 @@
         android:id="@+id/affix" />
     <EditText
         android:inputType="textPersonName"
+        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/last_name"
@@ -45,11 +49,19 @@
         android:hint="@string/email"
         android:id="@+id/emailAddress" />
 
+    <Button
+        android:text="@string/confirm_button_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/emailAddress"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/confirmButton" />
+
     <TextView
         android:text="@string/existing_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/emailAddress"
+        android:layout_below="@+id/confirmButton"
         android:layout_centerHorizontal="true"
         android:id="@+id/loginText"
         android:textColor="@android:color/holo_blue_dark"/>
