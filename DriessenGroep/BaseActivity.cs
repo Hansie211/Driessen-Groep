@@ -1,10 +1,8 @@
 ﻿using Android.App;
 using Android.Content.PM;
-using Android.Graphics.Drawables;
 using Android.Runtime;
 using Android.Support.V7.App;
 using Android.Views;
-using Android.Widget;
 using Xamarin.Essentials;
 
 namespace DriessenGroep
@@ -40,13 +38,6 @@ namespace DriessenGroep
         {
             Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-
-        public void DisplayTextError(object sender, string error)
-        {
-            Drawable icon = GetDrawable(Resource.Drawable.error);
-            icon.SetBounds(0, 0, icon.IntrinsicWidth, icon.IntrinsicHeight);
-            (sender as TextView).SetError(error, icon);
         }
     }
 }

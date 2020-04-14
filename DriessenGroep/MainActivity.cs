@@ -29,7 +29,7 @@ namespace DriessenGroep
             {
                 if (!Android.Util.Patterns.EmailAddress.Matcher((sender as EditText).Text).Matches())
                 {
-                    DisplayTextError(sender, string.Format(GetString(Resource.String.invalid_value), GetString(Resource.String.email)));
+                    this.DisplayTextError(sender, string.Format(GetString(Resource.String.invalid_value), GetString(Resource.String.email)));
                 }
             }
         }
