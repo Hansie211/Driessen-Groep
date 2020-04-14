@@ -36,6 +36,11 @@ namespace DatabaseBackend.Controllers {
 
             parameters.EmailAddress = parameters.EmailAddress.ToLower();
 
+            if ( Db.Users.Where( o => o.Email == parameters.EmailAddress ).Any() ) {
+
+                return BadRequest( "Dit emailadres is al in gebruik." );
+            }
+
             User user = new User(){
                 FirstName       = parameters.FirstName,
                 LastName        = parameters.LastName,
@@ -57,13 +62,13 @@ namespace DatabaseBackend.Controllers {
 
             if ( !IsAuthorizedToAccess( id ) ) {
 
-                return BadRequest( "Validation error." );
+                return Forbidden( "Validation error." );
             }
 
             var user = await Db.Users.FindAsync(id);
             if ( user == null ) {
 
-                return BadRequest( "User not found." );
+                return NotFound( "User not found." );
             }
 
             return user;
@@ -71,31 +76,31 @@ namespace DatabaseBackend.Controllers {
 
         // PUT: api/users/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<User>> UpdateUser( int id, [FromBody]User user ) {
+        public async Task<ActionResult<User>> UpdateUser( int id, [FromBody]User userdata ) {
 
             if ( !IsAuthorizedToAccess( id ) ) {
 
-                return BadRequest( "Validation error." );
+                return Forbidden( "Validation error." );
             }
 
-            User dbuser = await Db.Users.FindAsync( id );
-            if ( dbuser == null ) {
+            User user = await Db.Users.FindAsync( id );
+            if ( user == null ) {
 
-                return BadRequest( "User not found." );
+                return NotFound( "User not found." );
             }
             
-            dbuser.CopyFromRequest( user );
+            user.CopyFromRequest( userdata );
 
             // Only admin or higher can upgrade, but a admin cannot go up to sysadmin
-            if ( ( AuthorizedSecurityLevel >= SecurityLevel.Administrator ) && ( user.SecurityLevel > dbuser.SecurityLevel ) && ( user.SecurityLevel <= AuthorizedSecurityLevel ) ) {
+            if ( ( AuthorizedSecurityLevel >= SecurityLevel.Administrator ) && ( userdata.SecurityLevel > user.SecurityLevel ) && ( userdata.SecurityLevel <= AuthorizedSecurityLevel ) ) {
 
-                dbuser.SecurityLevel = user.SecurityLevel;                
+                user.SecurityLevel = userdata.SecurityLevel;                
             }
 
-            Db.Users.Update( dbuser );
+            Db.Users.Update( user );
             await Db.SaveChangesAsync();
 
-            return user;
+            return userdata;
         }
 
         // PUT: api/users/5/password
@@ -104,20 +109,18 @@ namespace DatabaseBackend.Controllers {
 
             if ( !IsAuthorizedToAccess( id ) ) {
 
-                return BadRequest( "Validation error." );
+                return Forbidden( "Validation error." );
             }
 
             User user = await Db.Users.FindAsync( id );
             if ( user == null ) {
 
-                return BadRequest( "User not found." );
+                return NotFound( "User not found." );
             }
 
             PasswordSecurity.SetPassword( password, user );
 
-            Db.Users.Attach( user );
-            Db.Entry( user ).Property( o => o.PasswordHash ).IsModified = true;
-            Db.Entry( user ).Property( o => o.PasswordSalt ).IsModified = true;
+            Db.Users.Update( user );
             await Db.SaveChangesAsync();
 
             return Ok();
@@ -129,13 +132,13 @@ namespace DatabaseBackend.Controllers {
 
             if ( !IsAuthorizedToAccess(id) ) {
 
-                return BadRequest( "Validation error." );
+                return Forbidden( "Validation error." );
             }
 
             var user = await Db.Users.FindAsync(id);
             if ( user == null ) {
 
-                return BadRequest( "User not found." );
+                return NotFound( "User not found." );
             }
 
             Db.Users.Remove( user );

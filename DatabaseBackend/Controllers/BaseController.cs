@@ -59,8 +59,28 @@ namespace DatabaseBackend.Controllers {
             Db = context;
         }
 
-        protected BadRequestObjectResult BadRequest( string message ) {
-            return base.BadRequest( new { Message = message } );
+        private ObjectResult RequestResult( string message, int status, string title ) {
+
+            return new ObjectResult( new { status, title, message } );
+        }
+
+        protected ObjectResult BadRequest( string message = "" ) {
+            return RequestResult( message, 400, "Bad Request");
+        }
+
+        //protected ObjectResult Unauthorized( string message ) {
+
+        //    return RequestResult( message, 401, "Unauthorized" );
+        //}
+
+        protected ObjectResult Forbidden( string message = "" ) {
+
+            return RequestResult( message, 403, "Forbidden" );
+        }
+
+        protected ObjectResult NotFound( string message = "" ) { 
+
+            return RequestResult( message, 404, "Not Found");
         }
 
         protected bool IsAuthorizedToAccess( int Id ) {

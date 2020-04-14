@@ -38,7 +38,7 @@ namespace DatabaseBackend.Controllers
             IQueryable<Event> query = Db.Events.Where( @e => @e.ID == id );
             Event @event = await query.FirstOrDefaultAsync();
             if ( @event == null ) {
-                return NotFound();
+                return NotFound( "Event not found" );
             }
 
             query.Include( e => e.Ownerships ).ThenInclude( o => o.User ).Load();
@@ -51,63 +51,61 @@ namespace DatabaseBackend.Controllers
 
         // Post: api/events
         [HttpPost( "" )]
-        public async Task<ActionResult<Event>> CreateEvent( Event @event ) {
+        public async Task<ActionResult<Event>> CreateEvent( Event eventdata) {
+
+            // Only moderator or higher can create event
+            if ( AuthorizedSecurityLevel < SecurityLevel.Moderator ) {
+
+                return Forbidden();
+            }
 
             User user = await Db.Users.FindAsync( AuthorizedID );
             if ( user == null ) {
-                return BadRequest();
+                return NotFound( "User not found" );
             }
 
-            @event.Ownerships.Clear();
-            @event.Ownerships.Add( new EventOwnership() { Event = @event, User = user, OwnershipLevel = OwnershipLevel.Administrator } );
+            eventdata.Ownerships.Clear();
+            eventdata.Ownerships.Add( new EventOwnership() { Event = eventdata, User = user, OwnershipLevel = OwnershipLevel.Administrator } );
 
-            Db.Events.Add( @event );
+            Db.Events.Add( eventdata );
             await Db.SaveChangesAsync();
 
-            return @event;
+            return eventdata;
         }
 
         // PUT: api/events/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<Event>> UpdateEvent( int id, Event @event ) { 
+        public async Task<ActionResult<Event>> UpdateEvent( int id, Event eventdata ) { 
 
-            Event dbevent = await Db.Events.FindAsync( id );
-            if ( dbevent == null ) {
-                return NotFound();
+            Event @event = await Db.Events.FindAsync( id );
+            if ( @event == null ) {
+                return NotFound( "Event not found" );
             }
 
-            if ( AuthorizedSecurityLevel < SecurityLevel.Administrator ) { 
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Moderator ) {
 
-                EventOwnership ownership = await Db.EventOwnerships.FirstOrDefaultAsync( o => (o.Event.ID == id) && (o.User.ID == AuthorizedID ) );
-                if ( ownership == null ) {
-
-                    return ValidationProblem();
-                }
+                return Forbidden();
             }
 
-            dbevent.CopyFromRequest( @event );
-            Db.Events.Update( dbevent );
+            @event.CopyFromRequest( eventdata );
+            Db.Events.Update( @event );
             await Db.SaveChangesAsync();
 
-            return @event;
+            return eventdata;
         }
 
         // DELETE: api/events/5
         [HttpDelete( "{id}" )]
         public async Task<ActionResult<Event>> DeleteEvent( int id ) {
-            
-            var @event = await Db.Events.FindAsync(id);
-            if ( @event == null ) {
-                return NotFound();
+
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Administrator ) {
+
+                return Forbidden();
             }
 
-            if ( AuthorizedSecurityLevel < SecurityLevel.Administrator ) {
-
-                EventOwnership ownership = await Db.EventOwnerships.FirstOrDefaultAsync( o => (o.Event.ID == id) && (o.User.ID == AuthorizedID ) );
-                if ( ( ownership == null ) || ( ownership.OwnershipLevel < OwnershipLevel.Administrator ) ) {
-
-                    return ValidationProblem();
-                }
+            var @event = await Db.Events.FindAsync(id);
+            if ( @event == null ) {
+                return NotFound( "Event not found" );
             }
 
             Db.Events.Remove( @event );
@@ -120,36 +118,37 @@ namespace DatabaseBackend.Controllers
         [HttpPost( "{id}/ownership/{userid}" )]
         public async Task<ActionResult> CreateOwner( int id, int userid, [FromBody]OwnershipLevel ownershipLevel ) {
 
-            Event @event = await Db.Events.FindAsync( id );
-            if ( @event == null ) {
-                return NotFound();
-            }
-
             // Is the requester authorized?
             if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Administrator ) {
 
-                return ValidationProblem();
+                return Forbidden();
+            }
+
+            Event @event = await Db.Events.FindAsync( id );
+            if ( @event == null ) {
+                return NotFound( "Event not found" );
             }
 
             User user = await Db.Users.FindAsync( userid );
             if ( user == null ) {
-                return NotFound();
+                return NotFound( "User not found" );
             }
 
             EventOwnership ownership = await Db.EventOwnerships.FirstOrDefaultAsync( o => ( o.Event.ID == id ) && ( o.User.ID == userid ) );
-            if ( ownership == null ) {
 
-                Db.EventOwnerships.Add( new EventOwnership() { Event = @event, User = user, OwnershipLevel = ownershipLevel } );
-            } else {
+            // Already set?
+            if ( ownership?.OwnershipLevel == ownershipLevel ) {
 
-                if ( ownership.OwnershipLevel == ownershipLevel ) {
-                    return Ok(); // Done
-                }
+                return Ok(); // done
+            }
+
+            if ( ownership != null ) {
 
                 ownership.OwnershipLevel = ownershipLevel;
+                Db.EventOwnerships.Update( ownership );
+            } else {
 
-                Db.EventOwnerships.Attach( ownership );
-                Db.Entry( ownership ).Property( o => o.OwnershipLevel ).IsModified = true;
+                Db.EventOwnerships.Add( new EventOwnership() { Event = @event, User = user, OwnershipLevel = ownershipLevel } );
             }
 
             await Db.SaveChangesAsync();
@@ -161,19 +160,20 @@ namespace DatabaseBackend.Controllers
         [HttpDelete( "{id}/ownership/{userid}" )]
         public async Task<ActionResult> DeleteOwner( int id, int userid ) {
 
-            EventOwnership ownership = await Db.EventOwnerships.FirstOrDefaultAsync( o => ( o.Event.ID == id ) && ( o.User.ID == userid ) );
-            if ( ownership == null ) { 
-
-                return NotFound();
-            }
-
             // Is the requester authorized?
             if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Administrator ) {
 
                 if ( userid != AuthorizedID ) {
 
-                    return ValidationProblem();
+                    return Forbidden();
                 }
+            }
+
+            // Does this ownership exist?
+            EventOwnership ownership = await Db.EventOwnerships.FirstOrDefaultAsync( o => ( o.Event.ID == id ) && ( o.User.ID == userid ) );
+            if ( ownership == null ) { 
+
+                return NotFound( "Ownership not found");
             }
 
             // Any admins left?
@@ -190,121 +190,150 @@ namespace DatabaseBackend.Controllers
 
         // POST: api/events/5/speakers/
         [HttpPost( "{id}/speakers")]
-        public async Task<ActionResult<Speaker>> CreateSpeaker( int id, [FromBody]Speaker speaker ) {
+        public async Task<ActionResult<Speaker>> CreateSpeaker( int id, [FromBody]Speaker speakerdata ) {
 
-            Event @event = await Db.Events.FindAsync( id );
-            
-            if ( @event == null ) {
-                return NotFound();
+            // Is the requester authorized?
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Moderator ) {
+
+                return Forbidden();
             }
 
-            @event.Speakers.Add( speaker );
+            Event @event = await Db.Events.FindAsync( id );            
+            if ( @event == null ) {
+                return NotFound( "Event not found" );
+            }
+
+            @event.Speakers.Add( speakerdata );
+            await Db.SaveChangesAsync();
+
+            return speakerdata;
+        }
+
+        // PUT: api/events/5/speakers/2
+        [HttpPut( "{id}/speakers/{speakerid}" )]
+        public async Task<ActionResult<Speaker>> UpdateSpeaker( int id, int speakerid, [FromBody]Speaker speakerdata ) {
+
+            // Is the requester authorized?
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Moderator ) {
+
+                return Forbidden();
+            }
+
+            Speaker speaker = await Db.Speakers.Where( s => s.ID == speakerid ).FirstOrDefaultAsync();
+            if ( speaker == null ) {
+                return NotFound( "Speaker not found" );
+            }
+
+            if ( speaker.EventID != id ) {
+                return BadRequest();
+            }
+
+            speaker.CopyFromRequest( speakerdata );
+            Db.Speakers.Update( speaker );
+
             await Db.SaveChangesAsync();
 
             return speaker;
         }
 
-        // PUT: api/events/5/speakers/2
-        [HttpPut( "{id}/speakers/{speakerid}" )]
-        public async Task<ActionResult<Speaker>> UpdateSpeaker( int id, int speakerid, [FromBody]Speaker speaker ) {
-
-            IQueryable<Speaker> query = Db.Speakers.Where( s => s.ID == speakerid );
-            Speaker dbspeaker = await query.FirstOrDefaultAsync();
-            if ( dbspeaker == null ) {
-                return NotFound();
-            }
-
-            query.Include( s => s.Event ).Load();
-            if ( dbspeaker.Event.ID != id ) {
-                return BadRequest();
-            }
-
-            dbspeaker.CopyFromRequest( speaker );
-            Db.Speakers.Update( dbspeaker );
-            await Db.SaveChangesAsync();
-
-            return dbspeaker;
-        }
-
         // DELETE: api/events/5/speakers/2
         [HttpDelete( "{id}/speakers/{speakerid}" )]
         public async Task<ActionResult<Speaker>> DeleteSpeaker( int id, int speakerid ) {
-            
-            Speaker dbspeaker = await Db.Speakers.FindAsync( speakerid );
-            
-            if ( dbspeaker == null ) {
-                return NotFound();
+
+            // Is the requester authorized?
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Moderator ) {
+
+                return Forbidden();
             }
 
-            Db.Speakers.Include( o => o.Event ).Load();
-            if ( dbspeaker.Event.ID != id ) {
+            Speaker speaker = await Db.Speakers.FindAsync( speakerid );            
+            if ( speaker == null ) {
+                return NotFound( "Speaker not found" );
+            }
+
+            if ( speaker.EventID != id ) {
 
                 return BadRequest();
             }
 
-            Db.Speakers.Remove( dbspeaker );
+            Db.Speakers.Remove( speaker );
             await Db.SaveChangesAsync();
 
-            return dbspeaker;
+            return speaker;
         }
 
         // POST: api/events/5/programs/
         [HttpPost( "{id}/programs" )]
-        public async Task<ActionResult<EventProgram>> CreateProgram( int id, [FromBody]EventProgram program ) {
+        public async Task<ActionResult<EventProgram>> CreateProgram( int id, [FromBody]EventProgram programdata ) {
 
-            Event @event = await Db.Events.FindAsync( id );
+            // Is the requester authorized?
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Moderator ) {
 
-            if ( @event == null ) {
-                return NotFound();
+                return Forbidden();
             }
 
-            @event.Programs.Add( program );
+            Event @event = await Db.Events.FindAsync( id );
+            if ( @event == null ) {
+                return NotFound( "Event not found" );
+            }
+
+            @event.Programs.Add( programdata );
             await Db.SaveChangesAsync();
 
-            return program;
+            return programdata;
         }
 
         // PUT: api/events/5/programs/2
         [HttpPut( "{id}/programs/{programid}" )]
-        public async Task<ActionResult<EventProgram>> UpdateProgram( int id, int programid, [FromBody]EventProgram program ) {
+        public async Task<ActionResult<EventProgram>> UpdateProgram( int id, int programid, [FromBody]EventProgram programdata ) {
 
-            EventProgram dbprogram = await Db.EventPrograms.FindAsync( programid );
-            if ( dbprogram == null ) {
-                return NotFound();
+            // Is the requester authorized?
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Moderator ) {
+
+                return Forbidden();
             }
 
-            Db.EventPrograms.Include( o => o.Event ).Load();
-            if ( dbprogram.Event.ID != id ) {
+            EventProgram program = await Db.EventPrograms.FindAsync( programid );
+            if ( program == null ) {
+                return NotFound( "Program not found" );
+            }
+
+            if ( program.EventID != id ) {
 
                 return BadRequest();
             }
 
-            dbprogram.CopyFromRequest( program );
-            Db.EventPrograms.Update( dbprogram );
+            program.CopyFromRequest( programdata );
+            Db.EventPrograms.Update( program );
             await Db.SaveChangesAsync();
 
-            return dbprogram;
+            return program;
         }
 
         // DELETE: api/events/5/programs/2
         [HttpDelete( "{id}/programs/{programid}" )]
         public async Task<ActionResult<EventProgram>> DeleteProgram( int id, int programid ) {
 
-            EventProgram dbprogram = await Db.EventPrograms.FindAsync( programid );
-            if ( dbprogram == null ) {
-                return NotFound();
+            // Is the requester authorized?
+            if ( GetAuthorizedOwnershipLevel( id ) < OwnershipLevel.Moderator ) {
+
+                return Forbidden();
             }
 
-            Db.EventPrograms.Include( o => o.Event ).Load();
-            if ( dbprogram.Event.ID != id ) {
+            EventProgram program = await Db.EventPrograms.FindAsync( programid );
+            if ( program == null ) {
+                return NotFound( "Program not found" );
+            }
+
+            if ( program.EventID != id ) {
 
                 return BadRequest();
             }
 
-            Db.EventPrograms.Remove( dbprogram );
+            Db.EventPrograms.Remove( program );
             await Db.SaveChangesAsync();
 
-            return dbprogram;
+            return program;
         }
 
         private OwnershipLevel GetAuthorizedOwnershipLevel( int eventid ) {

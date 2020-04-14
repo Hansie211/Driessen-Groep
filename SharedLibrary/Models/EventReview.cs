@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace SharedLibrary.Models {
@@ -11,7 +12,10 @@ namespace SharedLibrary.Models {
         public int ID { get; set; }
 
         [JsonIgnore]
+        [ForeignKey("EventID")]
         public Event Event { get; set; }
+
+        public int EventID { get; }
 
         [Required]
         public User User { get; set; }

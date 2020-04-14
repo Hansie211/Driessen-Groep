@@ -44,9 +44,8 @@ namespace DatabaseBackend {
             modelBuilder.Entity<Event>().HasKey( e => new { e.ID } );
             modelBuilder.Entity<Event>().HasMany( e => e.Programs ).WithOne( p => p.Event );
             modelBuilder.Entity<Event>().HasMany( e => e.Ownerships ).WithOne( o => o.Event );
-            modelBuilder.Entity<Event>().HasMany( e => e.Speakers );
+            modelBuilder.Entity<Event>().HasMany( e => e.Speakers ).WithOne( s => s.Event );
             modelBuilder.Entity<Event>().HasMany( e => e.Reviews ).WithOne( r => r.Event );
-
 
             modelBuilder.Entity<Event>().HasData(
 
@@ -58,55 +57,6 @@ namespace DatabaseBackend {
 
                 new User() { ID = 11, FirstName = "First", LastName = "LastName", Email = "EMAIL", PasswordHash = "", PasswordSalt = "", SecurityLevel = SecurityLevel.User }
             );
-        }
-
-        private IEnumerable<User> GetEventOwners( IEnumerable<EventOwnership> ownerships ) {
-
-            foreach ( EventOwnership ownership in ownerships ) {
-
-                User user = Users.FirstOrDefault( u => u.ID == ownership.User.ID );
-                if ( user == null ) {
-                    continue;
-                }
-
-                yield return user;
-            }
-        }
-
-        public IEnumerable<User> GetEventOwners( Event @event, OwnershipLevel level ) {
-
-            IEnumerable<EventOwnership> ownerships = @event.Ownerships.Where( o => o.OwnershipLevel == level );
-            return GetEventOwners( ownerships );
-        }
-
-        public IEnumerable<User> GetEventOwners( Event @event ) {
-            IEnumerable<EventOwnership> ownerships = @event.Ownerships;
-            return GetEventOwners( ownerships );
-        }
-
-        private IEnumerable<Event> GetOwnedEvents( IEnumerable<EventOwnership> ownerships ) {
-
-            foreach ( EventOwnership ownership in ownerships ) {
-
-                Event @event = Events.FirstOrDefault( e => e.ID == ownership.Event.ID );
-                if ( @event == null ) {
-                    continue;
-                }
-
-                yield return @event;
-            }
-        }
-
-        public IEnumerable<Event> GetOwnedEvents( User user, OwnershipLevel level) {
-
-            IEnumerable<EventOwnership> ownerships = user.Ownerships.Where( o => o.OwnershipLevel == level );
-            return GetOwnedEvents( ownerships );
-        }
-
-        public IEnumerable<Event> GetOwnedEvents( User user) {
-
-            IEnumerable<EventOwnership> ownerships = user.Ownerships;
-            return GetOwnedEvents( ownerships );
         }
     }
 }
