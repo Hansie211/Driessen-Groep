@@ -6,6 +6,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using DatabaseBackend.Security;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -23,7 +24,7 @@ namespace DatabaseBackend {
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync() {
 
-            string token = Request.Headers["Authorization"];
+            string token = Request.Headers["Authorization2"];
 
             if ( token == null ) {
 

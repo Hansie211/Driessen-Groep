@@ -34,9 +34,23 @@ namespace DriessenGroep
             }
         }
 
-        private void LoginButton_Click(object sender, EventArgs e)
+        private async void LoginButton_Click(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+
+            string emailAddress = FindViewById<EditText>( Resource.Id.emailBox )?.Text;
+            string password = FindViewById<EditText>( Resource.Id.passwordBox )?.Text;
+
+            APIResponse<string> response = await API.LoginUserAsync( emailAddress, password );
+
+            if ( response.IsSuccess ) {
+                API.SetAccessToken( response.Content );
+
+                // Switch to events
+                ( this ).SwitchToActivity<MainActivity>( ActivityFlags.ReorderToFront );
+                return;
+            }
+
+            // Display error
         }
     }
 }

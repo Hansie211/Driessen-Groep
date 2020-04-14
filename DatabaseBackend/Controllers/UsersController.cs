@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Security.Claims;
 
 // https://restfulapi.net/rest-put-vs-post/
 
@@ -75,7 +73,7 @@ namespace DatabaseBackend.Controllers {
         }
 
         // PUT: api/users/5
-        [HttpPut("{id}")]
+        [HttpPut( "{id}" )]
         public async Task<ActionResult<User>> UpdateUser( int id, [FromBody]User userdata ) {
 
             if ( !IsAuthorizedToAccess( id ) ) {
@@ -88,13 +86,13 @@ namespace DatabaseBackend.Controllers {
 
                 return NotFound( "User not found." );
             }
-            
+
             user.CopyFromRequest( userdata );
 
             // Only admin or higher can upgrade, but a admin cannot go up to sysadmin
             if ( ( AuthorizedSecurityLevel >= SecurityLevel.Administrator ) && ( userdata.SecurityLevel > user.SecurityLevel ) && ( userdata.SecurityLevel <= AuthorizedSecurityLevel ) ) {
 
-                user.SecurityLevel = userdata.SecurityLevel;                
+                user.SecurityLevel = userdata.SecurityLevel;
             }
 
             Db.Users.Update( user );
@@ -104,7 +102,7 @@ namespace DatabaseBackend.Controllers {
         }
 
         // PUT: api/users/5/password
-        [HttpPut("{id}/password")]
+        [HttpPut( "{id}/password" )]
         public async Task<ActionResult> ChangeUserPassword( int id, [FromBody]string password ) {
 
             if ( !IsAuthorizedToAccess( id ) ) {
@@ -130,7 +128,7 @@ namespace DatabaseBackend.Controllers {
         [HttpDelete( "{id}" )]
         public async Task<ActionResult<User>> DeleteUser( int id ) {
 
-            if ( !IsAuthorizedToAccess(id) ) {
+            if ( !IsAuthorizedToAccess( id ) ) {
 
                 return Forbidden( "Validation error." );
             }
@@ -148,7 +146,7 @@ namespace DatabaseBackend.Controllers {
         }
 
         // POST: api/users/login
-        [HttpPost( "login") ]
+        [HttpPost( "login" )]
         [AllowAnonymous]
         public async Task<ActionResult<string>> LoginUser( LoginUserParameters parameters ) {
 

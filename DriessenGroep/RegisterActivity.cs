@@ -18,6 +18,40 @@ namespace DriessenGroep
 
             EditText emailText = FindViewById<EditText>(Resource.Id.emailAddress);
             emailText.FocusChange += EmailText_FocusChange;
+
+            Button confirmButton = FindViewById<Button>( Resource.Id.confirmButton );
+            confirmButton.Click += ConfirmButton_Click;
+        }
+
+        private async void ConfirmButton_Click( object sender, System.EventArgs e ) {
+
+
+            string firstName = FindViewById<EditText>( Resource.Id.firstName )?.Text;
+            string affix = FindViewById<EditText>( Resource.Id.affix )?.Text;
+            string lastName = FindViewById<EditText>( Resource.Id.lastName )?.Text;
+            string emailAddress = FindViewById<EditText>( Resource.Id.emailAddress )?.Text;
+            string password = FindViewById<EditText>( Resource.Id.password )?.Text;
+
+            if ( !string.IsNullOrEmpty(affix) ) {
+
+                lastName = string.Format("{0} {1}", affix, lastName );
+            }
+
+            APIResponse<string> response = await API.CreateUserAsync( firstName, lastName, emailAddress, password );
+
+            if ( response.IsSuccess ) {
+
+                // Store the token
+                API.SetAccessToken( response.Content );
+
+                // Switch to events
+                ( this ).SwitchToActivity<MainActivity>( ActivityFlags.ReorderToFront );
+                return;
+            }
+
+            // Display error message
+
+            System.Console.WriteLine( response );
         }
 
         private void EmailText_FocusChange(object sender, Android.Views.View.FocusChangeEventArgs e)

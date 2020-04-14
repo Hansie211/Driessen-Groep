@@ -51,7 +51,7 @@ namespace DatabaseBackend.Controllers
 
         // Post: api/events
         [HttpPost( "" )]
-        public async Task<ActionResult<Event>> CreateEvent( Event eventdata) {
+        public async Task<ActionResult<Event>> CreateEvent( Event eventdata ) {
 
             // Only moderator or higher can create event
             if ( AuthorizedSecurityLevel < SecurityLevel.Moderator ) {

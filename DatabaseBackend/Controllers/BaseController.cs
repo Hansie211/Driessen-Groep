@@ -61,7 +61,9 @@ namespace DatabaseBackend.Controllers {
 
         private ObjectResult RequestResult( string message, int status, string title ) {
 
-            return new ObjectResult( new { status, title, message } );
+            return new ObjectResult( new { status, title, message } ){
+                StatusCode = status,
+            };
         }
 
         protected ObjectResult BadRequest( string message = "" ) {
