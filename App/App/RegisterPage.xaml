@@ -19,12 +19,12 @@
 
             <Label Text="Wachtwoord"/>
             <Entry Placeholder="Wachtwoord" IsPassword="true" x:Name="edtPassword" />
-            <Label Text="Bevestig wachtwoord" VerticalOptions="Start"  HorizontalOptions="Start" />
+            <Label Text="Bevestig wachtwoord"/>
             <Entry Placeholder="Bevestig wachtwoord" IsPassword="true" x:Name="edtPasswordConfirm"/>
 
-            <Label x:Name="lblError" HorizontalOptions="FillAndExpand" HeightRequest="30"/>
+            <Label x:Name="lblError" HorizontalOptions="CenterAndExpand" FontAttributes="Bold" TextColor="Red" HeightRequest="30"/>
 
-            <Button Text="Account aanmaken" Clicked="Button_Clicked" HorizontalOptions="FillAndExpand" />
+            <Button Text="Account aanmaken" Clicked="BtnRegister_Clicked" HorizontalOptions="FillAndExpand" />
 
         </StackLayout>
     </ContentPage.Content>

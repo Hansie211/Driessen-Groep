@@ -8,17 +8,19 @@
     <ContentPage.Content>
         <StackLayout>
 
-            <Label Text="Email adres" VerticalOptions="Start"  HorizontalOptions="Start" />
-            <Entry Placeholder="Email adres" Keyboard="Email"/>
+            <Label Text="Email adres"/>
+            <Entry Placeholder="Email adres" Keyboard="Email" x:Name="edtEmailAddress"/>
 
-            <Label Text="Wachtwoord" VerticalOptions="Start"  HorizontalOptions="Start" />
-            <Entry Placeholder="Wachtwoord" IsPassword="true" />
+            <Label Text="Wachtwoord" />
+            <Entry Placeholder="Wachtwoord" IsPassword="true" x:Name="edtPassword" />
 
-            <Button Text="Login" Clicked="Button_Clicked" HorizontalOptions="FillAndExpand"/>
+            <Label x:Name="lblError" HorizontalOptions="CenterAndExpand" FontAttributes="Bold" TextColor="Red" HeightRequest="30"/>
+            
+            <Button Text="Login" Clicked="ButtonLogin_Clicked" HorizontalOptions="FillAndExpand"/>
 
             <Label Text="Nog geen account? Registreer hier" HorizontalOptions="Center" Margin="0,15,0,0">
                 <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="Label_Clicked" />
+                    <TapGestureRecognizer Tapped="LabelRegister_Clicked" />
                 </Label.GestureRecognizers>
             </Label>
         </StackLayout>

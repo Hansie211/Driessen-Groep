@@ -19,11 +19,39 @@ namespace App {
             InitializeComponent();
         }
 
-        private async void Button_Clicked( object sender, EventArgs e ) {
+        private async void BtnRegister_Clicked( object sender, EventArgs e ) {
+
+            if ( !Validation.EmailAddress( edtEmailAddress.Text ) ) {
+
+                lblError.Text = "Emailadres is incorrect.";
+                return;
+            }
+
+            if ( string.IsNullOrEmpty( edtFirstName.Text ) ) {
+
+                lblError.Text = "Voornaam kan niet leeg zijn.";
+                return;
+            }
+
+            if ( string.IsNullOrEmpty( edtLastName.Text ) ) {
+
+                lblError.Text = "Achternaam kan niet leeg zijn.";
+                return;
+            }
+
+            if ( string.IsNullOrEmpty( edtPassword.Text ) ) {
+
+                lblError.Text = "Wachtwoord kan niet leeg zijn.";
+                return;
+            }
 
             if ( edtPassword.Text != edtPasswordConfirm.Text ) {
 
-                lblError.Text = "ERROR IN PASSWORD!!";
+                lblError.Text = "Wachtwoorden komen niet overeen.";
+
+                edtPasswordConfirm.Text = "";
+                edtPasswordConfirm.Focus();
+
                 return;
             }
 
@@ -31,12 +59,12 @@ namespace App {
 
             if ( !response.IsSuccess ) {
 
-                lblError.Text = "ERROR!";
+                lblError.Text = response.ErrorMessage["message"];
                 return;                
             }
 
             API.SetAccessToken( response.Content );
-            await Navigation.PopAsync();
+            await Navigation.PopToRootAsync();
         }
     }
 }
