@@ -15,19 +15,8 @@ namespace App {
 
         public MainPage() {
 
-            BindingContext = new MainPageViewModel();
             InitializeComponent();
         }
-
-        private async void Button_Clicked( object sender, EventArgs e ) {
-
-            // Back button
-            // Navigation.PushAsync( new NavigationPage( new LoginPage() ) );
-
-            // Geen back button
-            await ViewModel.RunModalAsync<LoginPage>( this );
-        }
-
     }
 
 

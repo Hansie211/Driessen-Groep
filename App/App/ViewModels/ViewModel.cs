@@ -10,6 +10,8 @@ namespace App.ViewModels {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        protected INavigation Navigation { get; set; }
+
         protected void RaisePropertyChanged( string propName ) {
 
             PropertyChanged?.Invoke( this, new PropertyChangedEventArgs( propName ) );
@@ -22,17 +24,23 @@ namespace App.ViewModels {
 
             T Page = (T)Activator.CreateInstance( typeof(T) );
             Page.BindingContext = VM;
+            VM.Navigation = Page.Navigation;
 
             return new NavigationPage( Page );
         }
 
-        public static async Task<NavigationPage> RunModalAsync<T>( ContentPage content ) where T : ContentPage {
+        public static async Task<NavigationPage> RunModalAsync<T>( INavigation Navigation ) where T : ContentPage {
 
             NavigationPage page = CreatePage<T>();
 
-            await content.Navigation.PushModalAsync( page );
+            await Navigation.PushModalAsync( page );
 
             return page;
+        }
+
+        public async Task<NavigationPage> RunModalAsync<T>() where T: ContentPage {
+
+            return await RunModalAsync<T>( Navigation );
         }
     }
 }

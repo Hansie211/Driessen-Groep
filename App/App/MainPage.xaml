@@ -24,7 +24,7 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <Button Command="{Binding AddEventCommand}" />
+        <Button Command="{Binding LoginUserCommand}" />
     </StackLayout>
 
 </ContentPage>

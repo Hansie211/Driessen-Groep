@@ -9,22 +9,22 @@
         <StackLayout>
 
             <Label Text="Voornaam" />
-            <Entry Placeholder="Voornaam" x:Name="edtFirstName" />
+            <Entry Placeholder="Voornaam" Text="{Binding FirstName}" />
             
             <Label Text="Acternaam" />
-            <Entry Placeholder="Acternaam" x:Name="edtLastName" />
+            <Entry Placeholder="Acternaam" Text="{Binding LastName}" />
 
             <Label Text="Email adres"/>
-            <Entry Placeholder="Email adres" Keyboard="Email"  x:Name="edtEmailAddress"/>
+            <Entry Placeholder="Email adres" Keyboard="Email"  Text="{Binding EmailAddress}"/>
 
             <Label Text="Wachtwoord"/>
-            <Entry Placeholder="Wachtwoord" IsPassword="true" x:Name="edtPassword" />
+            <Entry Placeholder="Wachtwoord" IsPassword="true" Text="{Binding Password}" />
             <Label Text="Bevestig wachtwoord"/>
-            <Entry Placeholder="Bevestig wachtwoord" IsPassword="true" x:Name="edtPasswordConfirm"/>
+            <Entry Placeholder="Bevestig wachtwoord" IsPassword="true" Text="{Binding PasswordConfirm}"/>
 
-            <Label x:Name="lblError" HorizontalOptions="CenterAndExpand" FontAttributes="Bold" TextColor="Red" HeightRequest="30"/>
+            <Label Text="{Binding Error}" HorizontalOptions="CenterAndExpand" FontAttributes="Bold" TextColor="Red" HeightRequest="30"/>
 
-            <Button Text="Account aanmaken" Clicked="BtnRegister_Clicked" HorizontalOptions="FillAndExpand" />
+            <Button Text="Account aanmaken" Command="{Binding RegisterCommand}" HorizontalOptions="FillAndExpand" />
 
         </StackLayout>
     </ContentPage.Content>
