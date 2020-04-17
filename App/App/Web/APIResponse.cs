@@ -43,6 +43,10 @@ namespace App.Web {
                     result.ErrorMessage = new Dictionary<string, string>() { { "message", responseBody } };
                 } else {
                     result.ErrorMessage = JsonConvert.DeserializeObject<Dictionary<string, string>>( responseBody );
+                    if ( !result.ErrorMessage.ContainsKey("message") ) {
+
+                        result.ErrorMessage.Add("message", "Onbekende fout.");
+                    }
                 }
 
             }
