@@ -70,11 +70,6 @@ namespace DatabaseBackend.Controllers {
             return RequestResult( message, 400, "Bad Request");
         }
 
-        //protected ObjectResult Unauthorized( string message ) {
-
-        //    return RequestResult( message, 401, "Unauthorized" );
-        //}
-
         protected ObjectResult Forbidden( string message = "" ) {
 
             return RequestResult( message, 403, "Forbidden" );
