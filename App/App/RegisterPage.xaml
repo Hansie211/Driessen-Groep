@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="App.RegisterPage">
+    <ContentPage.Content>
+        <StackLayout>
+
+            <Label Text="Voornaam" />
+            <Entry Placeholder="Voornaam" Text="{Binding FirstName}" x:Name="edtFirstName" />
+            
+            <Label Text="Acternaam" />
+            <Entry Placeholder="Acternaam" Text="{Binding LastName}" x:Name="edtLastName" />
+
+            <Label Text="Email adres"/>
+            <Entry Placeholder="Email adres" Keyboard="Email" Text="{Binding EmailAddress}" x:Name="edtEmailAddress"/>
+
+            <Label Text="Wachtwoord"/>
+            <Entry Placeholder="Wachtwoord" IsPassword="true" Text="{Binding Password}" x:Name="edtPassword" />
+            <Label Text="Bevestig wachtwoord" VerticalOptions="Start"  HorizontalOptions="Start" />
+            <Entry Placeholder="Bevestig wachtwoord" IsPassword="true" Text="{Binding PasswordConfirm}" x:Name="edtPasswordConfirm"/>
+
+            <Label Text="{Binding Error}" x:Name="lblError" />
+
+            <Button Text="Account aanmaken" Clicked="Button_Clicked" HorizontalOptions="FillAndExpand"/>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
