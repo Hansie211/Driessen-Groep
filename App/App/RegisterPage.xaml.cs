@@ -14,10 +14,8 @@ namespace App {
     [XamlCompilation( XamlCompilationOptions.Compile )]
     public partial class RegisterPage : ContentPage {
 
-
         public RegisterPage() {
 
-            this.BindingContext = this;
             InitializeComponent();
         }
 

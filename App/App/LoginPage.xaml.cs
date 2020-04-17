@@ -1,4 +1,5 @@
-﻿using System;
+﻿using App.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,6 @@ namespace App {
     public partial class LoginPage : ContentPage {
 
         public LoginPage() {
-            BindingContext = this;
             InitializeComponent();
         }
 
@@ -22,7 +22,7 @@ namespace App {
 
         private async void Label_Clicked( object sender, EventArgs e ) {
 
-            await Navigation.PushAsync( new NavigationPage( new RegisterPage() ) );
+            await ViewModel.RunModalAsync<RegisterPage>( this );
         }
     }
 }

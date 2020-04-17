@@ -5,6 +5,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="App.MainPage">
+    <ContentPage.Resources>
+
+    </ContentPage.Resources>
 
     <StackLayout>
         <!-- Place new controls here -->
@@ -12,9 +15,16 @@
            HorizontalOptions="Center"
            VerticalOptions="CenterAndExpand" />
 
-        <ListView ItemsSource="{Binding Items}" />
+        <ListView ItemsSource="{Binding Events}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding Title}"
+                              Detail="{Binding Description}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
-        <Button Clicked="Button_Clicked" />
+        <Button Command="{Binding AddEventCommand}" />
     </StackLayout>
 
 </ContentPage>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using App.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,28 +13,19 @@ namespace App {
     [DesignTimeVisible( false )]
     public partial class MainPage : ContentPage {
 
-        public string[] Items { get; set; }
-
         public MainPage() {
 
-            Items = new string[] {
-                "A",
-                "B",
-                "C",
-            };
-
-            BindingContext = this;
+            BindingContext = new MainPageViewModel();
             InitializeComponent();
         }
 
-        private void Button_Clicked( object sender, EventArgs e ) {
+        private async void Button_Clicked( object sender, EventArgs e ) {
 
             // Back button
             // Navigation.PushAsync( new NavigationPage( new LoginPage() ) );
 
             // Geen back button
-            Navigation.PushModalAsync( new NavigationPage( new LoginPage() ) );
-
+            await ViewModel.RunModalAsync<LoginPage>( this );
         }
 
     }

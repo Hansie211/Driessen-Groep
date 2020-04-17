@@ -1,4 +1,5 @@
-﻿using System;
+﻿using App.ViewModels;
+using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -7,7 +8,7 @@ namespace App {
         public App() {
             InitializeComponent();
 
-            MainPage = new NavigationPage( new MainPage() );
+            MainPage = ViewModel.CreatePage<MainPage>();
         }
 
         protected override void OnStart() {
