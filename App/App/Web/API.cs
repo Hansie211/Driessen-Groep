@@ -19,8 +19,7 @@ namespace App.Web {
             public FakeSSLHandler() {
 
                 this.ClientCertificateOptions = ClientCertificateOption.Manual;
-                this.ServerCertificateCustomValidationCallback = ( httpRequestMessage, cert, cetChain, policyErrors ) =>
-                {
+                this.ServerCertificateCustomValidationCallback = ( httpRequestMessage, cert, cetChain, policyErrors ) => {
                     return true;
                 };
             }
@@ -150,9 +149,9 @@ namespace App.Web {
         }
 
 
-        public static async Task<APIResponse<IEnumerable<Event>>> GetEventsAsync() {
+        public static async Task<APIResponse<IEnumerable<Event>>> GetEventsAsync( int start ) {
 
-            return await GetAsync<IEnumerable<Event>>( "api/events ");
+            return await GetAsync<IEnumerable<Event>>( $"api/events/list/{start}" );
         }
 
         public static async Task<APIResponse<Event>> GetEventAsync( int id ) {
@@ -252,6 +251,16 @@ namespace App.Web {
         public static async Task<APIResponse<Speaker>> DeleteProgramAsync( int id, int programid ) {
 
             return await DeleteAsync<Speaker>( $"api/events/{id}/programs/{programid}" );
+        }
+
+        public static async Task<APIResponse<bool>> CreateRegistration( int eventid ) {
+
+            return await PostAsync<bool>( $"api/events/{eventid}/register", null );
+        }
+
+        public static async Task<APIResponse<bool>> DeleteRegistration( int eventid ) {
+
+            return await DeleteAsync<bool>( $"api/events/{eventid}/register" );
         }
     }
 }

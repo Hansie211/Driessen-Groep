@@ -42,5 +42,15 @@ namespace SharedLibrary.Models {
             EndTime = source.EndTime;
             Description = source.Description;
         }
+
+        public EventProgram() : base() {
+
+        }
+
+        public EventProgram( int eventID ) : base() {
+
+            EventID = eventID;
+        }
+
     }
 }

@@ -23,11 +23,15 @@ namespace DatabaseBackend.Controllers
         }
 
         // GET: api/events
-        [HttpGet("")]
+        [HttpGet("list/{start?}")]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
-        {
-            return await Db.Events.ToListAsync();
+        public async Task<ActionResult<IEnumerable<Event>>> GetEvents( int start ) {
+
+            if ( start < 0 ) {
+                start = 0;
+            }
+
+            return await Db.Events.OrderBy( o => o.Date ).Skip( start ).Take(10).ToListAsync();
         }
 
         // GET: api/events/5
@@ -45,9 +49,74 @@ namespace DatabaseBackend.Controllers
             query.Include( e => e.Programs ).Load();
             query.Include( e => e.Reviews ).Load();
             query.Include( e => e.Speakers ).Load();
+            query.Include( e => e.Registrations ).ThenInclude( o => o.User).Load();
+
+            // Sort
+            @event.Programs = @event.Programs.OrderBy( o => o.StartTime ).ToList();
 
             return @event;
         }
+
+        // POST: api/events/5/register
+        [HttpPost( "{id}/register" )]
+        public async Task<ActionResult> CreateRegistration( int id ) {
+
+            var user = await Db.Users.FindAsync( AuthorizedID );
+            if ( user == null ) {
+
+                return NotFound( "User not found." );
+            }
+
+            var @event = await Db.Events.FindAsync( id );
+            if ( @event == null ) {
+
+                return NotFound( "Event not found." );
+            }
+
+            if ( Db.EventRegistrations.Where( o => ( o.EventID == id ) && ( o.UserID == AuthorizedID ) ).Any() ) {
+                return Ok(); // done
+            }
+
+            // Create the registration
+            EventRegistration registration = new EventRegistration();
+
+            registration.User = user;
+            registration.Event = @event;
+
+            Db.EventRegistrations.Add( registration );
+            await Db.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        // POST: api/events/5/register
+        [HttpDelete( "{id}/register" )]
+        public async Task<ActionResult> DeleteRegistration( int id ) {
+
+            var user = await Db.Users.FindAsync( AuthorizedID );
+            if ( user == null ) {
+
+                return NotFound( "User not found." );
+            }
+
+            var @event = await Db.Events.FindAsync( id );
+            if ( @event == null ) {
+
+                return NotFound( "Event not found." );
+            }
+
+            EventRegistration registration = await Db.EventRegistrations.Where( o => ( o.EventID == id ) && ( o.UserID == AuthorizedID ) ).FirstOrDefaultAsync();
+            if ( registration == null ) {
+
+                return Ok(); // done
+            }
+
+            Db.EventRegistrations.Remove( registration );
+            await Db.SaveChangesAsync();
+
+            return Ok();
+        }
+
 
         // Post: api/events
         [HttpPost( "" )]

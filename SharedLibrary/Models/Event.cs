@@ -34,12 +34,16 @@ namespace SharedLibrary.Models {
         [Required]
         public IList<EventReview> Reviews { get; set; }
 
+        [Required]
+        public IList<EventRegistration> Registrations { get; set; }
+
         public Event() {
 
             Programs    = new List<EventProgram>();
             Ownerships  = new List<EventOwnership>();
             Speakers    = new List<Speaker>();
             Reviews     = new List<EventReview>();
+            Registrations = new List<EventRegistration>();
         }
 
         public void CopyFromRequest( object request ) {

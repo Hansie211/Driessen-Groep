@@ -3,28 +3,44 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:App.Converters"
+             xmlns:components="clr-namespace:App.Components"
              mc:Ignorable="d"
+             x:Name="Page"
              x:Class="App.MainPage">
     <ContentPage.Resources>
-
+        <converters:ShortDescriptionConverter x:Key="ShortDescriptionConverter"/>
     </ContentPage.Resources>
 
     <StackLayout>
-        <!-- Place new controls here -->
-        <Label Text="Welcome to Xamarin.Forms!" 
-           HorizontalOptions="Center"
-           VerticalOptions="CenterAndExpand" />
 
-        <ListView ItemsSource="{Binding Events}">
+        <components:InfiniteListView ItemsSource="{Binding Events}" SelectionMode="None" RefreshCommand="{Binding LoadEventsCommand}" IsRefreshing="{Binding LoadingEvents}" LoadMoreCommand="{Binding LoadMoreCommand}" VerticalOptions="Fill" IsPullToRefreshEnabled="True" HasUnevenRows="True">
+            <ListView.Header>
+                <Label Text="{Binding Error}" />
+            </ListView.Header>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextCell Text="{Binding Title}"
-                              Detail="{Binding Description}" />
+                    <ViewCell>
+                        <Grid Padding="10">
+                            
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding BindingContext.ClickEventCommand, Source={x:Reference Page}}" CommandParameter="{Binding ., Mode=OneWay}" />
+                            </Grid.GestureRecognizers>
+                            
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            
+                            <Label Grid.Row="0" Text="{Binding Title}" FontSize="Subtitle" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Text="{Binding Description, Converter={StaticResource ShortDescriptionConverter}}" Margin="0,5,0,0" />
+                        </Grid>
+                    </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
-        </ListView>
+        </components:InfiniteListView>
 
-        <Button Command="{Binding LoginUserCommand}" />
+        <Button Text="Login" Command="{Binding LoginUserCommand}" />
     </StackLayout>
 
 </ContentPage>

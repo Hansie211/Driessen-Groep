@@ -21,5 +21,14 @@ namespace SharedLibrary.Models {
             FirstName   = source.FirstName;
             LastName    = source.LastName;
         }
+
+        public Speaker() : base() {
+
+        }
+
+        public Speaker( int eventID ) : base() {
+
+            EventID = eventID;
+        }
     }
 }

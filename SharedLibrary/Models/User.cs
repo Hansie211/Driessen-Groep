@@ -26,9 +26,13 @@ namespace SharedLibrary.Models
         [JsonIgnore]
         public IList<EventOwnership> Ownerships { get; set; }
 
+        [Required]
+        public IList<EventRegistration> Registrations { get; set; }
+
         public User() {
 
             Ownerships = new List<EventOwnership>();
+            Registrations = new List<EventRegistration>();
         }
 
         public void CopyFromRequest( object request ) {

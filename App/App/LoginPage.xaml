@@ -12,7 +12,7 @@
             <Entry Placeholder="Email adres" Keyboard="Email" Text="{Binding EmailAddress}"/>
 
             <Label Text="Wachtwoord" />
-            <Entry Placeholder="Wachtwoord" IsPassword="true" Text="{Binding Password}"/>
+            <Entry Placeholder="Wachtwoord" IsPassword="true" Text="{Binding Password}" />
 
             <Label Text="{Binding Error}" HorizontalOptions="CenterAndExpand" FontAttributes="Bold" TextColor="Red" HeightRequest="30"/>
             
