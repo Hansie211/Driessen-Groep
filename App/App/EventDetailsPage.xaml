@@ -14,7 +14,7 @@
     </ContentPage.Resources>
 
     <ContentPage.Content>
-        <ScrollView Orientation="Vertical" >
+        <ScrollView Orientation="Vertical">
             <Grid>
                 <Grid IsVisible="{Binding LoadingEvent}">
                     <StackLayout Padding="10">
@@ -22,8 +22,8 @@
                         <Label Text="{Binding Error}" />
                     </StackLayout>
                 </Grid>
-                <Grid IsVisible="{Binding LoadingEvent, Converter={StaticResource BooleanInverseConverter}}">
-                    <StackLayout Padding="10">
+                <Grid IsVisible="{Binding LoadingEvent, Converter={StaticResource BooleanInverseConverter}}" >
+                    <StackLayout Padding="10" Spacing="0" VerticalOptions="Fill" >
 
                         <Label Text="{Binding MainEvent.Title}" FontAttributes="Bold" FontSize="Title" />
                         <Label Text="{Binding MainEvent.Location, StringFormat='Waar: {0}'}" />
@@ -46,15 +46,18 @@
                         </StackLayout>
 
                         <Label Margin="0,20,0,5" Text="Sprekers:" FontAttributes="Bold"  FontSize="Title"/>
-                        <ListView ItemsSource="{Binding MainEvent.Speakers}"  SelectionMode="None">
-                            <ListView.ItemTemplate>
+                        <StackLayout BindableLayout.ItemsSource="{Binding MainEvent.Speakers}" >
+                            <BindableLayout.ItemTemplate>
                                 <DataTemplate>
-                                    <ViewCell>
+                                    <StackLayout>
                                         <Label Text="{Binding ., Converter={StaticResource FullNameConverter}}" />
-                                    </ViewCell>
+                                    </StackLayout>
                                 </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                            </BindableLayout.ItemTemplate>
+                        </StackLayout>
+
+                        <Button Text="{Binding SubscribeButtonText}" Command="{Binding SubscribeButtonCommand}" Margin="0,15,0,0" />
+                        
                     </StackLayout>
                 </Grid>
             </Grid>

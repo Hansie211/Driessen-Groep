@@ -89,32 +89,6 @@ namespace DatabaseBackend {
                 @event.Description = RandomText( random.Next( 20, 100 ) );
                 @event.Location = RandomText( random.Next( 2, 5 ) );
 
-                //int count = random.Next(1,4);
-                //for( int i = 0; i < count; i++ ) { 
-
-                //    @event.Speakers.Add( new Speaker(){
-                //        ID = speakerid++,
-                //        FirstName = RandomText( random.Next( 1, 2 ) ),
-                //        LastName = RandomText( random.Next(1,2) )
-                //    } );
-                //}
-
-                //count = random.Next( 3,10 );
-                //for( int i = 0; i < count; i++ ) {
-
-                //    EventProgram program = new EventProgram() {
-                //        ID = programid,
-                //        Description = RandomText( random.Next( 20, 100 ) ),
-                //        Location = RandomText( random.Next( 2, 5 ) ),
-                //        Title = RandomText( random.Next( 2, 5 ) ),
-                //        StartTime = @event.Date.AddMinutes( random.Next(10,300) ),
-                //    };
-
-                //    program.EndTime = program.StartTime.AddMinutes( random.Next(10,120) );
-
-                //    @event.Programs.Add( program );
-                //}
-
                 EventSeedData.Add( @event );
             }
 

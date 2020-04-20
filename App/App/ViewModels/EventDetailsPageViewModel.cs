@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace App.ViewModels {
@@ -19,6 +20,8 @@ namespace App.ViewModels {
 
             return page;
         }
+
+        public ICommand SubscribeButtonCommand { get; set; }
 
         private Event _MainEvent { get; set; }
         public Event MainEvent {
@@ -45,7 +48,31 @@ namespace App.ViewModels {
             set {
 
                 _Error = $"Error: {value}";
-                RaisePropertyChanged("Error");
+
+                RaisePropertyChanged( nameof(Error) );
+            }
+        }
+
+        public string SubscribeButtonText { get; private set; }
+
+        private bool _UserSubscribed;
+        public bool UserSubscribed {
+            get => _UserSubscribed;
+            set {
+                _UserSubscribed = value;
+
+                switch( value ) {
+
+                    case true:
+                        SubscribeButtonText = "Afmelden";
+                        break;
+                    case false:
+                        SubscribeButtonText = "Aanmelden";
+                        break;
+                }
+
+                RaisePropertyChanged( nameof( SubscribeButtonText ) );
+                RaisePropertyChanged( nameof( UserSubscribed ) );
             }
         }
 
@@ -68,6 +95,23 @@ namespace App.ViewModels {
         }
 
         public EventDetailsPageViewModel() {
+
+            SubscribeButtonCommand = new RelayCommand( OnSubscribeButton );
+        }
+
+        private void OnSubscribeButton( object _ ) {
+
+            UserSubscribed = !UserSubscribed;
+
+            //if ( SubscribeButtonText  == "Aanmelden" ) {
+
+            //    SubscribeButtonText = "Afmelden";
+            //} else {
+
+            //    SubscribeButtonText = "Aanmelden";
+            //}
+
+            
         }
     }
 }

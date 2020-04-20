@@ -25,15 +25,26 @@ namespace App.Web {
 
             if ( result.IsSuccess ) {
 
-                if ( typeof( T ) == typeof( bool ) ) {
+                TypeCode type = Type.GetTypeCode( typeof(T) );
 
-                    result.Content = (T)(object)true;
-                } else if ( typeof( T ) == typeof( string ) ) {
+                switch ( type ) {
 
-                    result.Content = (T)(object)responseBody;
-                } else {
+                    case TypeCode.Empty:
+                    case TypeCode.DBNull:
+                        result.Content = default(T);
+                        break;
 
-                    result.Content = JsonConvert.DeserializeObject<T>( responseBody );
+                    case TypeCode.Boolean:
+                        result.Content = (T)(object)true;
+                        break;
+
+                    case TypeCode.Object:
+                        result.Content = JsonConvert.DeserializeObject<T>( responseBody );
+                        break;
+
+                    default:
+                        result.Content = (T)(object)responseBody;
+                        break;
                 }
 
             } else {

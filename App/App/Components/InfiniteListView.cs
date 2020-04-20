@@ -21,9 +21,7 @@ namespace App.Components {
 
         void InfiniteListView_ItemAppearing( object sender, ItemVisibilityEventArgs e ) {
 
-            IList items = ItemsSource as IList;
-
-            if ( items == null ) {
+            if ( !( ItemsSource is IList items ) ) {
                 return;
             }
 
